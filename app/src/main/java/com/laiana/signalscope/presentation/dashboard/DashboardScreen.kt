@@ -1,17 +1,25 @@
 package com.laiana.signalscope.presentation.dashboard
 
-// Importações necessárias para permissões, UI e estados do Compose
 import android.Manifest
 import android.content.pm.PackageManager
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -25,14 +33,11 @@ import com.laiana.signalscope.presentation.components.InfoCard
 fun DashboardScreen() {
     val context = LocalContext.current
 
-    // Instancia o monitor de rede.
     val networkMonitor = remember {
         NetworkMonitor(context)
     }
 
-    // Estado local para rastrear se a permissão foi concedida.
-    // Usamos 'mutableStateOf' para que a tela seja redesenhada (recomposta)
-    // automaticamente quando o valor mudar.
+    // Estado local para armazenar se o app tem ou não a permissão de ler o estado do telefone.
     var hasPhonePermission by remember {
         mutableStateOf(
             ContextCompat.checkSelfPermission(
@@ -42,49 +47,95 @@ fun DashboardScreen() {
         )
     }
 
-    // 'rememberLauncherForActivityResult' registra um contrato para solicitar permissão.
-    // O callback dentro dele lida com a resposta do usuário (se aceitou ou negou).
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
-        hasPhonePermission = isGranted // Atualiza o estado da tela
+        hasPhonePermission = isGranted
 
-        // Feedback simples para o usuário
-        val message = if (isGranted) "Permissão concedida!" else "Permissão negada."
+        val message = if (isGranted) {
+            "Permissão concedida!"
+        } else {
+            "Permissão negada."
+        }
+
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 
-    // Busca o nome da operadora (geralmente não exige permissão de runtime)
+    // Obtém o nome da operadora
     val operatorName = networkMonitor.getOperatorName()
 
-    // Lógica condicional: só tenta ler o tipo de rede se tiver a permissão.
-    // Caso contrário, exibe um aviso na tela.
+    //Define o que exibir no campo "Tipo de rede"
     val networkType = if (hasPhonePermission) {
         networkMonitor.getNetworkType()
     } else {
         "Permissão necessária"
     }
 
+    // Define o texto de status da permissão para exibir na interface
+    val permissionStatus = if (hasPhonePermission) {
+        "Concedida"
+    } else {
+        "Necessária"
+    }
+
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(16.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            InfoCard(title = "Status da rede", description = "Monitoramento iniciado")
+            Text(
+                text = "SignalScope",
+                style = MaterialTheme.typography.headlineMedium
+            )
+
+            Text(
+                text = "Qualidade da rede móvel",
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            InfoCard(
+                title = "Status da rede",
+                description = "Monitoramento iniciado"
+            )
+
             Spacer(modifier = Modifier.height(16.dp))
 
-            InfoCard(title = "Operadora", description = operatorName)
+            InfoCard(
+                title = "Operadora",
+                description = operatorName
+            )
+
             Spacer(modifier = Modifier.height(16.dp))
 
-            InfoCard(title = "Tipo de rede", description = networkType)
+            InfoCard(
+                title = "Tipo de rede",
+                description = networkType
+            )
 
-            // Exibe o botão apenas se o usuário ainda não tiver concedido a permissão.
+            Spacer(modifier = Modifier.height(16.dp))
+
+            InfoCard(
+                title = "Permissão",
+                description = permissionStatus
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            InfoCard(
+                title = "Última atualização",
+                description = "Atualizado ao abrir o app"
+            )
+
             if (!hasPhonePermission) {
                 Spacer(modifier = Modifier.height(16.dp))
+
                 Button(
                     onClick = {
-                        // Dispara a solicitação do sistema para o usuário
                         permissionLauncher.launch(Manifest.permission.READ_PHONE_STATE)
                     }
                 ) {
