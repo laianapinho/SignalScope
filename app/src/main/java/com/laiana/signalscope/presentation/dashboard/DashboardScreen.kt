@@ -23,10 +23,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.laiana.signalscope.core.network.NetworkMonitor
 import com.laiana.signalscope.presentation.components.InfoCard
@@ -39,7 +37,6 @@ fun DashboardScreen() {
         NetworkMonitor(context)
     }
 
-    // Estado local para armazenar se o app tem ou não a permissão de ler o estado do telefone.
     var hasPhonePermission by remember {
         mutableStateOf(
             ContextCompat.checkSelfPermission(
@@ -63,17 +60,14 @@ fun DashboardScreen() {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 
-    // Obtém o nome da operadora
     val operatorName = networkMonitor.getOperatorName()
 
-    //Define o que exibir no campo "Tipo de rede"
     val networkType = if (hasPhonePermission) {
         networkMonitor.getNetworkType()
     } else {
         "Permissão necessária"
     }
 
-    // Define o texto de status da permissão para exibir na interface
     val permissionStatus = if (hasPhonePermission) {
         "Concedida"
     } else {
@@ -114,7 +108,8 @@ fun DashboardScreen() {
 @Composable
 fun DashboardHeader(
     title: String,
-    subtitle: String){
+    subtitle: String
+) {
     Text(
         text = title,
         style = MaterialTheme.typography.headlineMedium
@@ -130,8 +125,8 @@ fun DashboardHeader(
 fun NetworkInfoSection(
     operatorName: String,
     networkType: String,
-    permissionStatus: String){
-
+    permissionStatus: String
+) {
     InfoCard(
         title = "Status da rede",
         description = "Monitoramento iniciado"
@@ -167,9 +162,10 @@ fun NetworkInfoSection(
 }
 
 @Composable
-fun PermissionRequestButton
-    (hasPhonePermission: Boolean,
-     onClick: () -> Unit){
+fun PermissionRequestButton(
+    hasPhonePermission: Boolean,
+    onClick: () -> Unit
+) {
     if (!hasPhonePermission) {
         Spacer(modifier = Modifier.height(16.dp))
 
