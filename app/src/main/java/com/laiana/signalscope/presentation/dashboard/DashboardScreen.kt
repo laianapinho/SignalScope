@@ -23,8 +23,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.laiana.signalscope.core.network.NetworkMonitor
 import com.laiana.signalscope.presentation.components.InfoCard
@@ -86,62 +88,95 @@ fun DashboardScreen() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text(
-                text = "SignalScope",
-                style = MaterialTheme.typography.headlineMedium
-            )
-
-            Text(
-                text = "Qualidade da rede móvel",
-                style = MaterialTheme.typography.bodyMedium
+            DashboardHeader(
+                title = "SignalScope",
+                subtitle = "Qualidade da rede móvel"
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            InfoCard(
-                title = "Status da rede",
-                description = "Monitoramento iniciado"
+            NetworkInfoSection(
+                operatorName = operatorName,
+                networkType = networkType,
+                permissionStatus = permissionStatus
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            InfoCard(
-                title = "Operadora",
-                description = operatorName
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            InfoCard(
-                title = "Tipo de rede",
-                description = networkType
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            InfoCard(
-                title = "Permissão",
-                description = permissionStatus
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            InfoCard(
-                title = "Última atualização",
-                description = "Atualizado ao abrir o app"
-            )
-
-            if (!hasPhonePermission) {
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Button(
-                    onClick = {
-                        permissionLauncher.launch(Manifest.permission.READ_PHONE_STATE)
-                    }
-                ) {
-                    Text("Permitir leitura da rede")
+            PermissionRequestButton(
+                hasPhonePermission = hasPhonePermission,
+                onClick = {
+                    permissionLauncher.launch(Manifest.permission.READ_PHONE_STATE)
                 }
-            }
+            )
+        }
+    }
+}
+
+@Composable
+fun DashboardHeader(
+    title: String,
+    subtitle: String){
+    Text(
+        text = title,
+        style = MaterialTheme.typography.headlineMedium
+    )
+
+    Text(
+        text = subtitle,
+        style = MaterialTheme.typography.bodyMedium
+    )
+}
+
+@Composable
+fun NetworkInfoSection(
+    operatorName: String,
+    networkType: String,
+    permissionStatus: String){
+
+    InfoCard(
+        title = "Status da rede",
+        description = "Monitoramento iniciado"
+    )
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    InfoCard(
+        title = "Operadora",
+        description = operatorName
+    )
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    InfoCard(
+        title = "Tipo de rede",
+        description = networkType
+    )
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    InfoCard(
+        title = "Permissão",
+        description = permissionStatus
+    )
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    InfoCard(
+        title = "Última atualização",
+        description = "Atualizado ao abrir o app"
+    )
+}
+
+@Composable
+fun PermissionRequestButton
+    (hasPhonePermission: Boolean,
+     onClick: () -> Unit){
+    if (!hasPhonePermission) {
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = onClick
+        ) {
+            Text("Permitir leitura da rede")
         }
     }
 }
